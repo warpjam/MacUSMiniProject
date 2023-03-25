@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-public class MiniGame : MonoBehaviour
+public class TypeTastic : MonoBehaviour
 {
     [System.Serializable]
     public class Question
@@ -21,10 +21,13 @@ public class MiniGame : MonoBehaviour
 
     private Question currentQuestion;
     private int playerScore;
+    private int totalQuestions;
+    
 
     void Start()
     {
         submitButton.onClick.AddListener(CheckAnswer);
+        totalQuestions = questions.Count;
         LoadQuestion();
     }
 
@@ -43,7 +46,7 @@ public class MiniGame : MonoBehaviour
         }
         else
         {
-            questionText.text = $"You scored {playerScore} of {questions.Count + playerScore}";
+            questionText.text = $"You scored {playerScore} of {totalQuestions}";
             answerInput.gameObject.SetActive(false);
             submitButton.gameObject.SetActive(false);
         }
@@ -52,13 +55,26 @@ public class MiniGame : MonoBehaviour
     void CheckAnswer()
     {
         string playerAnswer = answerInput.text.Trim().ToLower();
+        string[] correctAnswers = currentQuestion.possibleAnswers;
+
         bool isCorrect = false;
 
-        foreach (string possibleAnswer in currentQuestion.possibleAnswers)
+        foreach (string correctAnswer in correctAnswers)
         {
-            if (playerAnswer == possibleAnswer.ToLower())
+            string lowerCaseCorrectAnswer = correctAnswer.ToLower();
+            string[] correctWords = lowerCaseCorrectAnswer.Split(' ');
+
+            foreach (string word in correctWords)
             {
-                isCorrect = true;
+                if (playerAnswer.Contains(word))
+                {
+                    isCorrect = true;
+                    break;
+                }
+            }
+
+            if (isCorrect)
+            {
                 break;
             }
         }
@@ -78,6 +94,8 @@ public class MiniGame : MonoBehaviour
         resultText.gameObject.SetActive(true);
         StartCoroutine(NextQuestion());
     }
+
+
 
     IEnumerator NextQuestion()
     {
